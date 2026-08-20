@@ -19,134 +19,67 @@ enum Role {
 }
 
 model User {
-  id String @id @default(cuid())
-  name String
-  email String @unique
-  role Role @default(USER)
-  premiumUntil DateTime?
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  likedSongs LikedSong[]
-  albums Album[]
-  hostedSession ListeningSession[] @relation("HostedSessions")
-  participants SessionParticipant[]
-  messages SessionMessage[]
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
 }
 
-model Song {
-  id String @id @default(cuid())
-  title String
-  artist String
-  coverUrl String?
-  audioUrl String
-  duration Int
-  createdAt DateTime @default(now())
+model Account {
+  id                    String    @id
+  issuer                String
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  likedBy LikedSong[]
-  albumSong AlbumSong[]
-  session ListeningSession[]
-  queueItems QueueItem[]
+  @@unique([issuer, accountId], map: "account_issuer_accountId_uidx")
+  @@index([userId])
+  @@map("account")
 }
 
-model LikedSong {
-  userId String
-  songId String
-  likedAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id]) 
-  song Song @relation(fields: [songId], references: [id])
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@id([userId, songId])
+  @@index([identifier])
+  @@map("verification")
 }
 
-model Album {
-  id String @id @default(cuid())
-  name String
-  ownerId String
-  isCollaborative Boolean @default(false)
-  createdAt DateTime @default(now())
-
-  owner User @relation(fields: [ownerId], references: [id])
-  song AlbumSong[]
-  editors AlbumEditor[]  
-}
-
-model AlbumSong{
-  albumId String
-  songId String
-  addedAt DateTime @default(now())
-  
-  album Album @relation(fields: [albumId], references: [id])
-  song Song @relation(fields: [songId], references: [id])
-
-  @@id([albumId, songId])
-}
-
-model AlbumEditor {
-  albumId String
-  userId String
-
-  album Album @relation(fields: [albumId], references: [id])
-
-  @@id([albumId, userId])
-}
-
-model ListeningSession {
-  id String @id @default(cuid())
-  joinCode String @unique
-  hostId String
-  currentSondId String?
-  isPlaying Boolean @default(false)
-  positionSeconds Float @default(0)
-  positionUpdatedAt DateTime @default(now())
-  createdAt DateTime @default(now())
-
-  host User @relation("HostedSessions", fields: [hostId], references: [id])
-  currentSong Song? @relation(fields: [currentSondId], references: [id])
-
-  participants SessionParticipant[]
-  queue QueueItem[]
-  messages SessionMessage[]
-}
-
-enum SessionRole {
-  GUEST
-  HOST
-}
-
-model SessionParticipant{
-  sessionID String
-  userId String
-  role SessionRole @default(GUEST)
-  joinedAt DateTime @default(now())
-
-  session ListeningSession @relation(fields: [sessionID], references: [id])
-  user User @relation(fields: [userId], references: [id])
-
-  @@id([sessionID, userId])
-}
-
-model QueueItem{
-  id String @id @default(cuid())
-  sessionId String
-  songId String
-  addedById String
-  position Int
-
-  createdAt DateTime @default(now())
-  
-  session ListeningSession @relation(fields: [sessionId], references: [id])
-  song Song @relation(fields: [songId], references: [id])
-}
-
-model SessionMessage {
-  id String @id @default(cuid())
-  sessionId String
-  userId String
-  type String
-  content String
-  createdAt DateTime @default(now())
-
-  session ListeningSession @relation(fields: [sessionId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-}
