@@ -12,6 +12,7 @@ import { initializeSocket, type AppServer } from "./sockets/index.js";
 
 const Port = process.env.PORT;
 const app = express();
+app.set("trust proxy", 1);
 app.use(cors());
 
 // better-auth needs the raw (unparsed) body, so it must be mounted before express.json()
