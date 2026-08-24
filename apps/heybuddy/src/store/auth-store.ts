@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       // back into the app via the `scheme` configured in expoClient().
       const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/", // in-app path to land on after success
+        callbackURL: "myapp://", // in-app path to land on after success
       });
       if (error) {
         console.log("Google sign-in error:", JSON.stringify(error, null, 2));
