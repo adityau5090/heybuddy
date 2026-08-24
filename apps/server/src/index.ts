@@ -8,6 +8,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 import apiRoutes from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.middleware.js";
+import { initializeSocket, type AppServer } from "./sockets/index.js";
 
 const Port = process.env.PORT;
 const app = express();
@@ -28,7 +29,13 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
+const io: AppServer = new Server(httpServer, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:8081",
+    credentials: true,
+  },
+});
+initializeSocket(io);
 
 httpServer.listen(Port, () => {
   console.log(`Server is running on http://localhost:${Port}`);

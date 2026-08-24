@@ -378,10 +378,6 @@ export type AlbumUncheckedUpdateManyWithoutOwnerNestedInput = {
   deleteMany?: Prisma.AlbumScalarWhereInput | Prisma.AlbumScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type AlbumCreateNestedOneWithoutSongInput = {
   create?: Prisma.XOR<Prisma.AlbumCreateWithoutSongInput, Prisma.AlbumUncheckedCreateWithoutSongInput>
   connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutSongInput

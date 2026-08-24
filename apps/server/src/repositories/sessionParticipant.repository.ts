@@ -23,7 +23,7 @@ export const sessionParticipantRepository = {
   findBySession(sessionID: string) {
     return prisma.sessionParticipant.findMany({
       where: { sessionID },
-      include: { user: true },
+      include: { user: { select: { id: true, email: true, name: true } } },
       orderBy: { joinedAt: "asc" },
     });
   },

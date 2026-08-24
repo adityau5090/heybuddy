@@ -17,10 +17,7 @@ export const sessionMessageRepository = {
       skip,
       take,
       orderBy: { createdAt: "desc" },
-      // NOTE: `image` is intentionally omitted here — the generated Prisma
-      // client checked into src/generated/prisma is stale and doesn't know
-      // about User.image yet. Add it back once you run `npx prisma generate`.
-      include: { user: { select: { id: true, name: true } } },
+      include: { user: { select: { id: true, name: true, image: true } } },
     });
   },
 
